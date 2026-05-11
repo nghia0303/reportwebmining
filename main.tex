@@ -28,10 +28,13 @@
 \newcommand{\systemname}{ArXiv Insight Graph Copilot}
 \newcommand{\datasetname}{Clean\_data.csv}
 \newcommand{\partialindex}{\texttt{partial-index-39336}}
+\IEEEoverridecommandlockouts
 
 \begin{document}
 
-\title{\systemname: Hệ thống Hybrid RAG và phân tích dữ liệu cho khai phá tài liệu arXiv}
+\title{\systemname: Hệ thống Hybrid RAG và phân tích dữ liệu cho khai phá tài liệu arXiv%
+\thanks{Học phần: Khai phá dữ liệu web.}
+\thanks{Giảng viên hướng dẫn: TS. Lê Hoàng Quỳnh.}}
 
 \author{
 \IEEEauthorblockN{Nguyễn Công, Phạm An Đức Vinh, Đào Xuân Nghĩa}
@@ -44,7 +47,7 @@ Hanoi, Vietnam \\
 \maketitle
 
 \begin{abstract}
-Hiện nay, số lượng bài báo khoa học không ngừng tăng nhanh theo từng năm, đặt ra nhu cầu về những hệ thống hỗ trợ truy xuất tài liệu, tổng hợp có dẫn chứng và phân tích xu hướng trên các kho dữ liệu cục bộ. Bài báo này trình bày về \systemname, một hệ thống hỗ trợ khai phá tài liệu arXiv kết hợp BM25, dense retrieval, hybrid retrieval, reranking, sinh câu trả lời có dẫn chứng và phân tích thống kê. Phạm vi thực nghiệm chính sử dụng dữ liệu arXiv giai đoạn 2021--2026. Cơ sở dữ liệu SQLite phục vụ phân tích thống kê chứa 557,134 paper. Chỉ mục Milvus production dùng cho retrieval và RAG tại thời điểm benchmark chứa 39,336 paper. Trên benchmark known-item retrieval, cấu hình hybrid đạt Recall@10 = 0.9960, MRR@10 = 0.9901, nDCG@10 = 0.9916 với latency trung bình 0.0775 s. Với Chat/RAG, mô hình \texttt{gpt-oss:120b} đạt citation precision 0.9453 và citation coverage 0.8000. Các kết quả này cho thấy hệ thống đề xuất có khả năng hỗ trợ khai phá tài liệu trên dữ liệu arXiv cục bộ.
+Hiện nay, số lượng bài báo khoa học không ngừng tăng nhanh theo từng năm, đặt ra nhu cầu về những hệ thống hỗ trợ truy xuất tài liệu, tổng hợp có dẫn chứng và phân tích xu hướng trên các kho dữ liệu cục bộ. Bài báo này trình bày \systemname, một hệ thống hỗ trợ khai phá tài liệu arXiv kết hợp BM25, dense retrieval, hybrid retrieval, reranking, sinh câu trả lời có dẫn chứng và phân tích thống kê. Phạm vi thực nghiệm chính sử dụng dữ liệu arXiv giai đoạn 2021--2026. Cơ sở dữ liệu SQLite phục vụ phân tích thống kê chứa 557,134 bài báo. Chỉ mục Milvus dùng cho truy xuất và RAG tại thời điểm đánh giá chứa 39,336 bài báo. Trên benchmark truy xuất known-item, cấu hình hybrid đạt Recall@10 = 0.9960, MRR@10 = 0.9901, nDCG@10 = 0.9916 với latency trung bình 0.0775~s. Với hệ thống hỏi--đáp dựa trên RAG, mô hình \texttt{gpt-oss:120b} đạt citation precision 0.9453 và citation coverage 0.8000. Các kết quả này cho thấy hệ thống đề xuất có khả năng hỗ trợ khai phá tài liệu trên dữ liệu arXiv cục bộ.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -62,7 +65,7 @@ Báo cáo này trình bày \systemname, một hệ thống Hybrid RAG được t
 \begin{itemize}
     \item Đề xuất một kiến trúc Hybrid RAG kết hợp BM25, dense retrieval, Reciprocal Rank Fusion (RRF), reranking và sinh câu trả lời có dẫn chứng trên dữ liệu arXiv cục bộ.
     \item Xây dựng một khung đánh giá tách riêng các thành phần chính của hệ thống, bao gồm truy xuất tài liệu, chất lượng câu trả lời RAG, khả năng phân tích dữ liệu và hiệu năng vận hành.
-    \item Báo cáo thực nghiệm trên dữ liệu arXiv giai đoạn 2021--2026, với 557,134 paper trong cơ sở dữ liệu phục vụ phân tích thống kê và 39,336 paper trong chỉ mục truy xuất dùng cho benchmark retrieval và RAG.
+    \item Báo cáo thực nghiệm trên dữ liệu arXiv giai đoạn 2021--2026, với 557,134 bài báo trong cơ sở dữ liệu phục vụ phân tích thống kê và 39,336 bài báo trong chỉ mục truy xuất dùng cho benchmark retrieval và RAG.
 \end{itemize}
 
 Phần còn lại của báo cáo được tổ chức như sau. Section~II phát biểu bài toán. Section~III trình bày nghiên cứu liên quan. Section~IV mô tả dữ liệu và phương pháp. Section~V mô tả kiến trúc hệ thống. Section~VI trình bày thiết kế đánh giá. Section~VII báo cáo kết quả thực nghiệm và thảo luận. Section~VIII nêu giới hạn và hướng phát triển. Cuối cùng, Section~IX trình bày kết luận.
@@ -73,18 +76,18 @@ Xét tập dữ liệu gồm các bài báo
 \[
 \mathcal{D}=\{d_i\}_{i=1}^{N},
 \]
-trong đó mỗi bài báo $d_i$ có các trường metadata gồm \texttt{paper\_id}, tiêu đề, abstract, tác giả, keyword/category, thời gian công bố và văn bản nội dung dùng cho truy xuất. Với mỗi truy vấn người dùng $q$, hệ thống cần sinh ra một trong các kiểu đầu ra sau:
+trong đó mỗi bài báo $d_i$ có các trường metadata gồm mã bài báo, tiêu đề, tóm tắt, tác giả, từ khóa hoặc nhóm chủ đề, thời gian công bố và văn bản nội dung dùng cho truy xuất. Với mỗi truy vấn người dùng $q$, hệ thống cần sinh ra một trong các kiểu đầu ra sau:
 
 \begin{itemize}
     \item danh sách bài báo liên quan $R_k(q)$;
     \item câu trả lời RAG $a(q)$ có citation dạng \texttt{[paper\_id]};
     \item bảng hoặc đoạn so sánh có dẫn chứng;
     \item thống kê xu hướng theo năm, category hoặc keyword;
-    \item đồ thị quan hệ tài liệu gồm các node paper/keyword/category/author và các edge liên hệ;
+    \item đồ thị quan hệ tài liệu gồm các nút bài báo, từ khóa, nhóm chủ đề và tác giả, cùng các liên kết tương ứng;
     \item nhận xét hỗ trợ đánh giá một hướng nghiên cứu theo các khía cạnh như baseline, metric, ground truth, limitation và research gap.
 \end{itemize}
 
-Mục tiêu tổng quát là tối ưu đồng thời ba nhóm tiêu chí: (i) chất lượng truy hồi bài báo, (ii) độ grounded/citation của câu trả lời, và (iii) khả năng phân tích dữ liệu phục vụ nghiên cứu. Do đó, bài toán đặt ra không chỉ là xây dựng một chatbot tổng quát, mà là thiết kế một hệ thống hỗ trợ khai phá dữ liệu nghiên cứu có khả năng truy xuất tài liệu, sinh câu trả lời có dẫn chứng, hỗ trợ so sánh phương pháp và phân tích dữ liệu phục vụ nghiên cứu.
+Mục tiêu tổng quát là tối ưu đồng thời ba nhóm tiêu chí: (i) chất lượng truy hồi bài báo, (ii) mức độ có dẫn chứng của câu trả lời, và (iii) khả năng phân tích dữ liệu phục vụ nghiên cứu. Do đó, bài toán đặt ra không chỉ là xây dựng một chatbot tổng quát, mà là thiết kế một hệ thống hỗ trợ khai phá dữ liệu nghiên cứu có khả năng truy xuất tài liệu, sinh câu trả lời có dẫn chứng, hỗ trợ so sánh phương pháp và phân tích dữ liệu phục vụ nghiên cứu.
 
 \section{Related Work}
 
@@ -102,42 +105,45 @@ GraphRAG mở rộng RAG bằng cách cấu trúc corpus thành đồ thị th�
 
 Ngoài dòng nghiên cứu học thuật, nhiều công cụ triển khai rộng rãi cũng đã hỗ trợ mạnh cho quy trình nghiên cứu. scite nhấn mạnh Smart Citations và evidence-grounded search trên tập lớn bài báo toàn văn~\cite{scite2026}; Consensus tập trung vào academic search và tóm tắt kết quả dựa trên hơn 220 triệu bài báo peer-reviewed~\cite{consensus2026}; Perplexity cung cấp Research mode để thực hiện multi-step search và sinh báo cáo tổng hợp từ nhiều nguồn~\cite{perplexityResearch2026}. Gần đây hơn, ChatGPT Deep Research và Gemini Deep Research đều hỗ trợ lập kế hoạch, duyệt nhiều nguồn, tổng hợp thành báo cáo có citations hoặc source links, và cho phép kết hợp thêm file hay nguồn dữ liệu người dùng cung cấp~\cite{chatgptDeepResearch2026,geminiDeepResearch2026}.
 
-Tuy nhiên, các hướng này thường chỉ nhấn mạnh một lát cắt của bài toán, chẳng hạn hỏi đáp tổng hợp trên đồ thị, trực quan hóa bibliometric, literature discovery hoặc trợ lý nghiên cứu đa năng nói chung, thay vì tích hợp đồng thời truy xuất tài liệu, sinh câu trả lời có dẫn chứng, phân tích thống kê và hỗ trợ khám phá quan hệ tài liệu trên cùng một corpus arXiv cục bộ. Từ các hướng nghiên cứu trên có thể thấy khoảng trống nằm ở những hệ thống tích hợp đồng thời nhiều nhu cầu của người làm nghiên cứu, bao gồm truy xuất tài liệu, tổng hợp có dẫn chứng, phân tích dữ liệu và hỗ trợ khám phá quan hệ giữa các bài báo, đồng thời có đánh giá định lượng các thành phần chính trong cùng một pipeline. Báo cáo này hướng tới việc thu hẹp khoảng trống đó thông qua một hệ thống tích hợp được xây dựng và đánh giá trên dữ liệu arXiv cục bộ.
+Tuy nhiên, các hướng này thường chỉ tập trung vào một phần của bài toán, chẳng hạn trả lời câu hỏi dựa trên đồ thị, phân tích và trực quan hóa mạng trích dẫn, hỗ trợ tìm kiếm tài liệu liên quan, hoặc xây dựng trợ lý nghiên cứu đa năng ở mức tổng quát. Chúng chưa tích hợp đầy đủ các nhu cầu như truy xuất tài liệu, sinh câu trả lời có dẫn chứng, phân tích thống kê và hỗ trợ khám phá quan hệ giữa các bài báo trên cùng một corpus arXiv cục bộ. Từ đó có thể thấy khoảng trống nằm ở những hệ thống kết hợp đồng thời nhiều chức năng phục vụ nghiên cứu, đồng thời có đánh giá định lượng các thành phần chính trong cùng một quy trình xử lý. Báo cáo này hướng tới việc thu hẹp khoảng trống đó thông qua một hệ thống tích hợp được xây dựng và đánh giá trên dữ liệu arXiv cục bộ.
 
 \section{Materials and Methods}
 
+Phần này của báo cáo trình bày các thành phần chính của hệ thống theo bốn nhóm. Trước hết, phần Dataset mô tả phạm vi và đặc điểm của dữ liệu đầu vào. Tiếp theo, phần Data Storage and Indexing trình bày cách tổ chức dữ liệu trong các lớp lưu trữ và chỉ mục phục vụ phân tích cũng như truy xuất. Phần Retrieval and Query Processing mô tả quy trình xử lý truy vấn, truy xuất lai, xếp hạng lại và tạo evidence. Cuối cùng, phần Generation and System Interface trình bày tầng sinh câu trả lời và các thành phần giao tiếp với người dùng.
+
 \subsection{Dataset}
 
-Nguồn dữ liệu chính là \datasetname, gồm các paper arXiv đã crawl trong giai đoạn 2021--2026. Mỗi dòng dữ liệu được chuẩn hóa thành một record có các trường: \texttt{paper\_id}, \texttt{title}, \texttt{abstract}, \texttt{authors}, \texttt{keywords}, \texttt{published\_date}, \texttt{year}, \texttt{month}, \texttt{year\_month}, \texttt{primary\_category} và \texttt{combined\_text}. Trường \texttt{combined\_text} là văn bản dùng cho embedding/search, được tạo từ title, abstract, keyword và metadata quan trọng.
+Nguồn dữ liệu chính là tập dữ liệu bài báo arXiv do nhóm thu thập và chuẩn hóa, gồm các bài báo trong giai đoạn 2021--2026. Mỗi mục dữ liệu chứa các thông tin cơ bản như mã bài báo, tiêu đề, tóm tắt, tác giả, từ khóa hoặc category, thời gian công bố, cùng phần nội dung văn bản đã được làm sạch, phục vụ cho các bước truy xuất và xử lý ngữ nghĩa. Mặc dù dữ liệu thu thập ban đầu có phạm vi rộng hơn, báo cáo này chỉ sử dụng phần dữ liệu giai đoạn 2021--2026 cho phân tích và thực nghiệm, phù hợp với giới hạn tài nguyên tính toán và khả năng lập chỉ mục hiện tại.
 
-Table~\ref{tab:data-overview} tóm tắt thống kê dữ liệu. SQLite analytics đã chứa toàn bộ 557,134 paper. Tuy nhiên, chỉ mục Milvus production tại thời điểm benchmark mới chứa 39,336 paper, do đó mọi kết quả retrieval/RAG production được ghi rõ là \partialindex.
+Các thống kê chính của tập dữ liệu được trình bày trong Bảng~\ref{tab:data-overview}. Trong đó, cơ sở dữ liệu SQLite phục vụ phân tích thống kê hiện chứa 557,134 bài báo, phản ánh quy mô của toàn bộ tập dữ liệu được sử dụng cho các tác vụ phân tích. Trong khi đó, chỉ mục Milvus dùng cho benchmark retrieval và RAG tại thời điểm đánh giá chứa 39,336 bài báo. Sự khác biệt này xuất phát từ việc lớp phân tích lưu toàn bộ dữ liệu, còn chỉ mục truy xuất mới bao phủ một phần corpus do giới hạn tài nguyên tính toán và khả năng lập chỉ mục hiện tại. Vì vậy, các kết quả retrieval và RAG trong báo cáo cần được hiểu là kết quả trên phạm vi chỉ mục hiện tại, không phải trên toàn bộ corpus. Bảng~\ref{tab:year-dist} cho thấy phân bố số lượng bài báo theo năm, còn Bảng~\ref{tab:top-categories} minh họa các nhóm chủ đề xuất hiện nhiều nhất trong tập dữ liệu. Phân bố theo năm cho thấy số lượng bài báo tăng rõ rệt trong giai đoạn 2023--2025, phản ánh xu hướng mở rộng nhanh của corpus ở các năm gần đây. Về chủ đề, tập dữ liệu tập trung mạnh vào các nhóm như \texttt{cs.CV}, \texttt{cs.LG} và \texttt{cs.CL}, cho thấy trọng tâm hiện tại của corpus nghiêng về thị giác máy tính, học máy và xử lý ngôn ngữ tự nhiên.
 
 \begin{table}[t]
 \caption{Tổng quan dữ liệu arXiv trong hệ thống}
 \label{tab:data-overview}
 \centering
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lr}
 \toprule
 \textbf{Thuộc tính} & \textbf{Giá trị}\\
 \midrule
-Tổng số paper trong SQLite analytics & 557,134\\
-Số paper trong Milvus production index & 39,336\\
+Tổng số bài báo trong SQLite & 557,134\\
+Số bài báo trong chỉ mục Milvus hiện tại & 39,336\\
 Khoảng ngày công bố & 2021-01-01 đến 2026-03-13\\
 Số năm có dữ liệu & 6\\
 Số primary category khác nhau & 149\\
-Độ dài title trung bình & 79.09 ký tự\\
-Độ dài abstract trung bình & 1,240.09 ký tự\\
+Độ dài tiêu đề trung bình & 79.09 ký tự\\
+Độ dài tóm tắt trung bình & 1,240.09 ký tự\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[t]
-\caption{Phân bố số lượng paper theo năm trong SQLite analytics}
+\caption{Phân bố số lượng bài báo theo năm trong SQLite}
 \label{tab:year-dist}
 \centering
 \begin{tabular}{lr}
 \toprule
-\textbf{Năm} & \textbf{Số paper}\\
+\textbf{Năm} & \textbf{Số bài báo}\\
 \midrule
 2021 & 76,210\\
 2022 & 80,849\\
@@ -150,12 +156,12 @@ Số primary category khác nhau & 149\\
 \end{table}
 
 \begin{table}[t]
-\caption{Top 10 primary categories trong SQLite analytics}
+\caption{Mười primary category xuất hiện nhiều nhất trong SQLite}
 \label{tab:top-categories}
 \centering
 \begin{tabular}{lr}
 \toprule
-\textbf{Category} & \textbf{Số paper}\\
+\textbf{Category} & \textbf{Số bài báo}\\
 \midrule
 cs.CV & 102,696\\
 cs.LG & 94,194\\
@@ -173,33 +179,29 @@ cs.IT & 12,870\\
 
 \subsection{Data Storage and Indexing}
 
-Dữ liệu được nạp vào hai lớp lưu trữ. Thứ nhất, SQLite lưu metadata đầy đủ để phục vụ overview, trend, top categories, lookup và các truy vấn thống kê. Thứ hai, Milvus lưu metadata, dense vector và sparse vector. Dense vector được sinh bằng Qwen3 Embedding 8B~\cite{qwen3embedding2025}, còn sparse vector được sinh từ BM25 function của Milvus trên trường text~\cite{milvusHybrid2025}. Về mặt biểu diễn tài liệu khoa học, các hướng như SciBERT~\cite{beltagy2019scibert} và SPECTER~\cite{cohan2020specter} cho thấy việc tận dụng pretraining trên văn bản hoặc quan hệ trích dẫn học thuật có thể hữu ích cho downstream scientific NLP và document retrieval. Khi indexing, hệ thống ghi checkpoint theo collection để có thể resume nếu job dừng giữa chừng.
+Trong nghiên cứu này, dữ liệu được tổ chức theo hai lớp lưu trữ phục vụ các mục đích khác nhau. Thứ nhất, SQLite lưu metadata đầy đủ để hỗ trợ các tác vụ phân tích thống kê như tổng quan dữ liệu, phân bố theo năm, nhóm chủ đề và tra cứu bài báo. Thứ hai, Milvus lưu metadata cùng các biểu diễn dense và sparse phục vụ truy xuất tài liệu. Việc tách hai lớp lưu trữ nhằm đáp ứng đồng thời nhu cầu phân tích thống kê trên toàn bộ dữ liệu và nhu cầu truy xuất tài liệu hiệu quả trên chỉ mục vector. Trong đó, dense vector được sinh bằng Qwen3 Embedding 8B~\cite{qwen3embedding2025}, còn sparse vector được xây dựng từ BM25 function của Milvus trên trường văn bản~\cite{milvusHybrid2025}. Trong quá trình indexing, hệ thống sử dụng cơ chế checkpoint để có thể tiếp tục từ trạng thái gần nhất nếu tác vụ bị gián đoạn.
 
-\subsection{Query Planning}
+\subsection{Retrieval and Query Processing}
 
-Trước khi search, truy vấn $q$ được đưa qua query planner để nhận diện intent như \texttt{compare}, \texttt{trend}, \texttt{gap}, \texttt{reviewer}, \texttt{related\_work} hoặc \texttt{qa}. Query planner cũng trích xuất year, year range và category như \texttt{cs.AI}, \texttt{cs.LG}, \texttt{cs.CV}. Các filter này được chuyển thành biểu thức lọc trong Milvus, ví dụ điều kiện theo năm hoặc category.
+Trước khi truy xuất, truy vấn $q$ được đưa qua bộ phân tích truy vấn để nhận diện loại nhu cầu của người dùng, chẳng hạn so sánh phương pháp, phân tích xu hướng, tìm khoảng trống nghiên cứu, tổng hợp nghiên cứu liên quan hoặc hỏi--đáp theo tài liệu. Đồng thời, hệ thống trích xuất các ràng buộc theo thời gian và nhóm chủ đề, chẳng hạn năm, khoảng năm hoặc các category như \texttt{cs.AI}, \texttt{cs.LG}, \texttt{cs.CV}. Các thông tin này sau đó được chuyển thành biểu thức lọc để giới hạn không gian truy xuất trong chỉ mục Milvus.
 
-\subsection{Hybrid Retrieval}
-
-Hệ thống hỗ trợ ba mode search chính: sparse, dense và hybrid. Với sparse mode, hệ thống dùng BM25. Với dense mode, query được encode thành vector và search trên trường dense. Với hybrid mode, hệ thống chạy cả dense search và sparse search, sau đó kết hợp bằng RRF:
+Hệ thống hỗ trợ ba chế độ truy xuất chính là sparse, dense và hybrid. Với chế độ sparse, hệ thống sử dụng BM25. Với chế độ dense, truy vấn được mã hóa thành vector và truy xuất trên không gian dense vector. Với chế độ hybrid, hệ thống thực hiện đồng thời dense retrieval và sparse retrieval, sau đó kết hợp kết quả bằng Reciprocal Rank Fusion (RRF):
 
 \begin{equation}
 \text{RRF}(d)=\sum_{r \in \mathcal{R}}\frac{1}{k+\text{rank}_{r}(d)},
 \end{equation}
 
-trong đó $\mathcal{R}$ là tập các ranked lists và $k$ là hằng số làm mượt. Cấu hình benchmark dùng dense top 80, sparse top 80, fused top 60 và top-k cuối là 20. Cách này giúp BM25 giữ khả năng bắt keyword chính xác, trong khi dense retrieval bắt quan hệ ngữ nghĩa rộng hơn.
+trong đó $\mathcal{R}$ là tập các danh sách xếp hạng và $k$ là hằng số làm mượt. Trong cấu hình benchmark, hệ thống lấy top 80 từ dense retrieval, top 80 từ sparse retrieval, sau đó hợp nhất thành 60 ứng viên trước khi chọn top 20 cuối cùng. Cách thiết kế này giúp BM25 giữ vai trò bắt các từ khóa chính xác, trong khi dense retrieval hỗ trợ các quan hệ ngữ nghĩa rộng hơn.
 
-\subsection{Reranking and Evidence Construction}
+Sau bước hybrid retrieval, hệ thống có thể xếp hạng lại các ứng viên bằng Qwen3 Reranker 4B~\cite{qwen3reranker2025}. Reranker nhận đầu vào là cặp truy vấn--tài liệu, trong đó mỗi tài liệu được biểu diễn bởi các thông tin như tiêu đề, năm công bố, category, tác giả và tóm tắt. Các evidence đứng đầu sau bước reranking được đưa vào bộ tạo prompt. Prompt yêu cầu mô hình sinh câu trả lời bằng tiếng Việt, bám sát evidence và gắn citation dạng \texttt{[paper\_id]} cho các nhận định quan trọng.
 
-Sau hybrid retrieval, hệ thống có thể rerank candidates bằng Qwen3 Reranker 4B~\cite{qwen3reranker2025}. Thiết kế này gần với hướng neural passage reranking ở tầng hai của pipeline retrieval~\cite{nogueira2019passage}. Reranker nhận cặp query--document, trong đó document gồm title, year, category, authors và abstract. Top evidence sau reranking được đưa vào prompt builder. Prompt yêu cầu generator trả lời bằng tiếng Việt, bám evidence và gắn citation dạng \texttt{[paper\_id]} cho các claim quan trọng.
+\subsection{Generation and System Interface}
 
-\subsection{Generation and User Interface}
-
-Generator mặc định trong benchmark là \texttt{ollama:gpt-oss:120b}, chạy qua Ollama để phục vụ các mô hình ngôn ngữ lớn cục bộ~\cite{ollama2026}. Ngoài ra, hệ thống hỗ trợ \texttt{qwen3:32b}, \texttt{llama3.3:70b} và \texttt{deepseek-r1:70b} để so sánh generator trên cùng evidence. UI Streamlit gồm 7 tab: Chat, Search, Compare, Models, Trends, Graph và Reviewer. API FastAPI cung cấp các endpoint tương ứng cho chat, search, graph query, analytics và benchmark.
+Trong cấu hình benchmark hiện tại, mô hình sinh mặc định là \texttt{ollama:gpt-oss:120b}, được phục vụ qua Ollama~\cite{ollama2026}. Ngoài ra, hệ thống cũng hỗ trợ các mô hình như \texttt{qwen3:32b}, \texttt{llama3.3:70b} và \texttt{deepseek-r1:70b} để so sánh chất lượng sinh trên cùng một tập evidence. Ở tầng tương tác, giao diện Streamlit cung cấp các nhóm chức năng chính của hệ thống như Chat, Search, Compare, Models, Trends, Graph và Reviewer. Song song với đó, FastAPI đảm nhiệm lớp API cho các chức năng truy xuất, hỏi--đáp, truy vấn đồ thị, phân tích dữ liệu và benchmark.
 
 \section{System Design and Implementation}
 
-Fig.~\ref{fig:architecture} mô tả kiến trúc tổng thể. Hệ thống được tách thành hai luồng: offline indexing và online query. Offline indexing chuẩn hóa dữ liệu, build SQLite analytics và build Milvus vector index. Online query xử lý query planning, retrieval, reranking, prompt construction và generation.
+Trên cơ sở các thành phần và quy trình đã mô tả ở phần trước, phần này trình bày kiến trúc triển khai tổng thể của hệ thống. Hình~\ref{fig:architecture} minh họa mối liên hệ giữa các lớp dữ liệu, pipeline xử lý truy vấn và các thành phần phục vụ tương tác với người dùng. Về mặt triển khai, hệ thống được tổ chức thành hai luồng chính là lập chỉ mục ngoại tuyến và xử lý truy vấn trực tuyến. Luồng ngoại tuyến đảm nhiệm việc chuẩn hóa dữ liệu, xây dựng cơ sở dữ liệu SQLite phục vụ phân tích thống kê và tạo chỉ mục vector trong Milvus. Luồng trực tuyến đảm nhiệm các bước phân tích truy vấn, truy xuất, xếp hạng lại, tạo prompt và sinh câu trả lời.
 
 \begin{figure*}[t]
 \centering
@@ -211,7 +213,7 @@ Fig.~\ref{fig:architecture} mô tả kiến trúc tổng thể. Hệ thống đ�
   store/.style={draw, cylinder, shape border rotate=90, aspect=0.25, align=center, minimum height=1.05cm, minimum width=1.7cm, font=\small},
   arrow/.style={-{Latex[length=2.4mm,width=1.8mm]}, line width=0.95pt, rounded corners=3pt}
 ]
-\node[box, fill=blue!8] (csv) {Raw data\\\texttt{Clean\_data.csv}};
+\node[box, fill=blue!8] (csv) {Dữ liệu bài báo\\arXiv};
 \node[box, fill=blue!8, right=of csv] (parse) {Parser \&\\Normalizer};
   \node[box, fill=orange!10, right=1.05cm of parse] (embed) {Qwen3\\Embedding};
   \node[store, fill=green!8, right=1.25cm of embed] (milvus) {Milvus\\Dense + BM25};
@@ -234,8 +236,9 @@ Fig.~\ref{fig:architecture} mô tả kiến trúc tổng thể. Hệ thống đ�
   \draw[arrow] (milvus.south) -- (retrieval.north);
   \draw[arrow] (retrieval) -- (rerank);
   \draw[arrow] (rerank) -- (llm);
+  \draw[arrow] (llm.south) -- ++(0,-1.15) -| (api.south);
 \end{tikzpicture}
-\caption{Kiến trúc tổng thể của \systemname. SQLite phục vụ analytics full corpus, còn Milvus phục vụ Search/Chat production trên vector index hiện tại.}
+\caption{Kiến trúc tổng thể của \systemname. SQLite phục vụ phân tích thống kê trên toàn bộ dữ liệu, còn Milvus phục vụ truy xuất và RAG trên chỉ mục hiện tại.}
 \label{fig:architecture}
 \end{figure*}
 
@@ -243,46 +246,48 @@ Fig.~\ref{fig:architecture} mô tả kiến trúc tổng thể. Hệ thống đ�
 \caption{Các thành phần triển khai chính}
 \label{tab:components}
 \centering
-\begin{tabular}{lll}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.21\columnwidth}p{0.27\columnwidth}p{0.37\columnwidth}}
 \toprule
 \textbf{Thành phần} & \textbf{Công nghệ} & \textbf{Vai trò}\\
 \midrule
-Raw data & CSV & Dữ liệu paper arXiv\\
-Analytics DB & SQLite & Trend, overview, lookup\\
-Vector DB & Milvus & Dense/sparse/hybrid search\\
-Backend & FastAPI & API Chat/Search/Analytics\\
-Frontend & Streamlit & UI 7 tab\\
-Embedding & Qwen3 Embedding 8B & Dense vector\\
-Reranker & Qwen3 Reranker 4B & Reorder evidence\\
+Dữ liệu thô & CSV & Dữ liệu bài báo arXiv\\
+CSDL phân tích & SQLite & Phân tích thống kê và tra cứu\\
+CSDL vector & Milvus & Truy xuất dense, sparse và hybrid\\
+Lớp dịch vụ & FastAPI & Cung cấp API hệ thống\\
+Giao diện & Streamlit & Giao diện tương tác\\
+Embedding & Qwen3 Embedding 8B & Tạo biểu diễn dense vector\\
+Reranker & Qwen3 Reranker 4B & Xếp hạng lại dẫn chứng\\
 Generator & Ollama LLMs & Sinh câu trả lời\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Cấu hình phần cứng mục tiêu gồm 4 GPU Tesla V100 32GB. Trong runtime, GPU 0--2 ưu tiên cho generator lớn, GPU 3 phục vụ embedding/reranking. Khi indexing, hệ thống có thể dùng cả 4 GPU để encode batch. Do V100 không tối ưu BF16/FP8 như các GPU mới hơn, triển khai ưu tiên FP16 và stack Transformers/SentenceTransformers/Ollama thay vì phụ thuộc vào các inference server yêu cầu compute capability mới.
+Cấu hình phần cứng mục tiêu gồm 4 GPU Tesla V100 32GB. Trong quá trình vận hành, ba GPU đầu được ưu tiên cho các mô hình sinh lớn, còn GPU còn lại phục vụ embedding và reranking. Khi lập chỉ mục, hệ thống có thể sử dụng đồng thời cả bốn GPU để mã hóa dữ liệu theo lô. Do dòng V100 không tối ưu cho các chuẩn như BF16 hoặc FP8 như các GPU mới hơn, cấu hình triển khai ưu tiên FP16 cùng các thành phần dựa trên Transformers, SentenceTransformers và Ollama.
 
 \section{Evaluation Methodology}
 
-\subsection{Coverage by Product Tab}
+\subsection{Coverage Across System Functions}
 
-Evaluation suite được thiết kế để bao phủ cả 7 tab sản phẩm, thay vì chỉ đo một chỉ số chatbot. Table~\ref{tab:coverage} trình bày mapping giữa chức năng và artifact đánh giá.
+Khung đánh giá được thiết kế để bao phủ các chức năng chính của hệ thống, thay vì chỉ tập trung vào một chỉ số hỏi--đáp duy nhất. Bảng~\ref{tab:coverage} trình bày mối liên hệ giữa từng nhóm chức năng và các nhóm chỉ số hoặc bộ đánh giá tương ứng.
 
 \begin{table*}[t]
-\caption{Ma trận coverage giữa tab sản phẩm và nhóm metric}
+\caption{Ma trận bao phủ giữa các chức năng hệ thống và nhóm chỉ số đánh giá}
 \label{tab:coverage}
 \centering
 \small
 \begin{tabular}{p{0.11\textwidth}p{0.21\textwidth}p{0.48\textwidth}p{0.10\textwidth}}
 \toprule
-\textbf{Tab} & \textbf{Artifact} & \textbf{Nhóm metric} & \textbf{Trạng thái}\\
+\textbf{Chức năng} & \textbf{Bộ đánh giá} & \textbf{Nhóm metric} & \textbf{Trạng thái}\\
 \midrule
-Search & retriever benchmark & Precision@k, Recall@k, MRR@10, nDCG@10, latency, filter accuracy & Covered\\
-Chat & RAG answer results & citation precision, citation coverage, groundedness, latency & Covered\\
-Compare & task-specific results & rubric coverage, citation quality, required-term coverage & Covered\\
-Models & retriever/reranker/generator/full-stack & stage-specific quality, latency, error rate & Covered\\
-Trends & task + analytics graph & trend direction, numeric overlap, growth statistics & Covered\\
-Graph & task + analytics graph & node/edge stats, evidence overlap & Covered\\
-Reviewer & task-specific results & baseline/metric/gap/limitation extraction & Covered\\
+Search & retrieval benchmark & Precision@k, Recall@k, MRR@10, nDCG@10, latency, filter accuracy & Có\\
+Chat & đánh giá câu trả lời RAG & citation precision, citation coverage, groundedness, latency & Có\\
+Compare & đánh giá theo tác vụ & rubric coverage, citation quality, required-term coverage & Có\\
+Models & benchmark theo tầng mô hình & stage-specific quality, latency, error rate & Có\\
+Trends & đánh giá tác vụ và đồ thị & trend direction, numeric overlap, growth statistics & Có\\
+Graph & đánh giá tác vụ và đồ thị & node/edge stats, evidence overlap & Có\\
+Reviewer & đánh giá theo tác vụ & baseline/metric/gap/limitation extraction & Có\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -311,7 +316,7 @@ nDCG@10 đo chất lượng xếp hạng có xét vị trí:
 \text{nDCG@10}=\frac{\text{DCG@10}}{\text{IDCG@10}}.
 \end{equation}
 
-Trong benchmark này, ground-truth là weak label tạo từ title-based known-item cases. Do đó, retrieval metrics phản ánh tốt khả năng tìm đúng paper đã biết, nhưng chưa thay thế được relevance judgment của chuyên gia cho các truy vấn tổng hợp.
+Trong benchmark này, ground-truth là weak label tạo từ các trường hợp known-item dựa trên tiêu đề. Do đó, retrieval metrics phản ánh tốt khả năng tìm đúng bài báo đã biết, nhưng chưa thay thế được relevance judgment của chuyên gia cho các truy vấn tổng hợp.
 
 \subsection{Answer and Citation Metrics}
 
@@ -325,18 +330,19 @@ Citation coverage đo tỉ lệ câu hỏi mà hệ thống có sinh citation kh
 
 \subsection{Benchmark Configuration}
 
-Final benchmark được chạy tại thư mục \path{data/eval/runs/final_coverage_20260428T175804Z}. Cấu hình chính gồm: collection Milvus \texttt{arxiv\_papers}, index label \partialindex, 500 known-item retrieval samples, \texttt{top\_k=20}, generator production \texttt{ollama:gpt-oss:120b}, và các generator benchmark \texttt{gpt-oss:120b}, \texttt{qwen3:32b}, \texttt{llama3.3:70b}, \texttt{deepseek-r1:70b}. Retriever/reranker comparison được tách riêng vì thay embedding model sẽ thay đổi vector space và không thể dùng trực tiếp dense vectors đã build trong Milvus.
+Cấu hình đánh giá chính sử dụng chỉ mục Milvus hiện tại \partialindex, 500 known-item retrieval samples và thiết lập \texttt{top\_k=20}. Mô hình sinh chính trong cấu hình này là \texttt{ollama:gpt-oss:120b}, đồng thời benchmark generator được mở rộng để so sánh thêm các mô hình \texttt{qwen3:32b}, \texttt{llama3.3:70b} và \texttt{deepseek-r1:70b}. Phần so sánh retriever và reranker được tách riêng, vì việc thay đổi embedding model sẽ làm thay đổi vector space và không thể sử dụng trực tiếp các dense vector đã được tạo trước trong Milvus.
 
 \section{Experimental Results and Discussion}
 
 \subsection{Retrieval Performance}
 
-Table~\ref{tab:retrieval-results} trình bày kết quả Search trên production Milvus index \partialindex. Hybrid retrieval là cấu hình tốt nhất xét đồng thời chất lượng và latency: Recall@10 = 0.9960, MRR@10 = 0.9901, nDCG@10 = 0.9916 và latency trung bình 0.0775 s. Sparse retrieval nhanh nhất với 0.0117 s nhưng chất lượng thấp hơn hybrid. Dense retrieval đạt chất lượng cạnh tranh nhưng chậm hơn hybrid trong lần chạy này.
+Bảng~\ref{tab:retrieval-results} trình bày kết quả truy xuất trên chỉ mục Milvus hiện tại \partialindex. Hybrid retrieval là cấu hình tốt nhất khi xét đồng thời chất lượng và độ trễ, với Recall@10 = 0.9960, MRR@10 = 0.9901, nDCG@10 = 0.9916 và latency trung bình 0.0775~s. Sparse retrieval nhanh nhất với 0.0117~s nhưng chất lượng thấp hơn hybrid. Dense retrieval đạt chất lượng cạnh tranh nhưng chậm hơn hybrid trong lần chạy này.
 
 \begin{table}[t]
-\caption{Kết quả retrieval trên production Milvus index \partialindex}
+\caption{Kết quả truy xuất trên chỉ mục Milvus hiện tại \partialindex}
 \label{tab:retrieval-results}
 \centering
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrr}
 \toprule
 \textbf{Mode} & \textbf{Cases} & \textbf{R@10} & \textbf{MRR@10} & \textbf{nDCG@10} & \textbf{Lat.}\\
@@ -349,16 +355,17 @@ Hybrid+Rerank & 500 & 0.9940 & 0.9877 & 0.9893 & 4.0203\\
 \end{tabular}
 \end{table}
 
-Điểm đáng chú ý là hybrid+rerank không vượt hybrid trong benchmark known-item hiện tại, trong khi latency tăng lên 4.0203 s. Kết quả này không phủ định giá trị của reranking nói chung; nó cho thấy với title-derived queries trên partial index, first-stage hybrid ranker đã đủ mạnh và reranker chưa tạo thêm lợi ích tương xứng.
+Điểm đáng chú ý là hybrid+rerank không vượt hybrid trong benchmark known-item hiện tại, trong khi latency tăng lên 4.0203~s. Kết quả này không phủ định giá trị của reranking nói chung; nó cho thấy với các truy vấn known-item dựa trên tiêu đề trên chỉ mục hiện tại, bộ truy xuất hybrid ở tầng đầu đã đủ mạnh và reranker chưa tạo thêm lợi ích tương xứng.
 
 \subsection{RAG Answer Quality}
 
-Table~\ref{tab:rag-results} trình bày chất lượng Chat/RAG production với \texttt{ollama:gpt-oss:120b}. Citation precision đạt 0.9453 và groundedness cũng đạt 0.9453, cho thấy khi hệ thống trích dẫn paper, citation phần lớn nằm trong retrieved evidence. Citation coverage là 0.8000, nghĩa là vẫn còn một phần prompt chưa có citation như kỳ vọng. Required-term coverage đạt 0.6417, phản ánh câu trả lời đã bao phủ nhiều khái niệm quan trọng nhưng vẫn có thể cải thiện bằng prompt/rubric chặt hơn.
+Bảng~\ref{tab:rag-results} trình bày chất lượng câu trả lời RAG với \texttt{ollama:gpt-oss:120b}. Citation precision đạt 0.9453 và groundedness cũng đạt 0.9453, cho thấy khi hệ thống trích dẫn bài báo thì phần lớn citation nằm trong tập evidence đã truy xuất. Citation coverage là 0.8000, nghĩa là vẫn còn một phần truy vấn chưa có citation như kỳ vọng. Required-term coverage đạt 0.6417, phản ánh câu trả lời đã bao phủ nhiều khái niệm quan trọng nhưng vẫn có thể cải thiện bằng prompt và rubric chặt hơn.
 
 \begin{table}[t]
-\caption{Kết quả Chat/RAG production}
+\caption{Kết quả chất lượng câu trả lời RAG}
 \label{tab:rag-results}
 \centering
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lrrrrr}
 \toprule
 \textbf{Model} & \textbf{Cases} & \textbf{Cit.P} & \textbf{Cit.Cov.} & \textbf{Req.} & \textbf{Lat.}\\
@@ -370,33 +377,35 @@ gpt-oss:120b & 20 & 0.9453 & 0.8000 & 0.6417 & 36.5030\\
 
 \subsection{Analytics and Graph Results}
 
-SQLite analytics chạy trên toàn bộ 557,134 paper. Trend benchmark gồm 8 keyword probes, với mức tăng tuyệt đối lớn nhất là 4,567. Graph benchmark gồm 8 graph queries, tạo trung bình 42.75 node và 58.75 edge. Các con số này cho thấy graph layer tạo cấu trúc không rỗng và có độ phức tạp nhất định, nhưng hiện vẫn là descriptive metrics; chưa có expert judgment để kết luận graph edge relevance.
+Phần phân tích thống kê trong SQLite được thực hiện trên toàn bộ 557,134 bài báo. Benchmark xu hướng gồm 8 truy vấn từ khóa, trong đó mức tăng tuyệt đối lớn nhất đạt 4,567. Benchmark đồ thị gồm 8 truy vấn, với số nút và số cạnh trung bình lần lượt là 42.75 và 58.75. Các kết quả này cho thấy lớp đồ thị có thể tạo ra cấu trúc quan hệ với độ phong phú nhất định. Tuy nhiên, ở giai đoạn hiện tại đây vẫn chủ yếu là các chỉ số mô tả; báo cáo chưa có đánh giá chuyên gia để kết luận trực tiếp về mức độ phù hợp của từng cạnh trong đồ thị.
 
 \begin{table}[t]
-\caption{Kết quả analytics và graph descriptive}
+\caption{Kết quả phân tích thống kê và mô tả đồ thị}
 \label{tab:analytics-graph}
 \centering
 \begin{tabular}{lrrr}
 \toprule
 \textbf{Metric} & \textbf{Count} & \textbf{Max growth} & \textbf{Nodes/Edges}\\
 \midrule
-Trend keywords & 8 & 4,567 & --\\
-Graph queries & 8 & -- & 42.75 / 58.75\\
+Truy vấn xu hướng & 8 & 4,567 & --\\
+Truy vấn đồ thị & 8 & -- & 42.75 / 58.75\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Open-source Generator Comparison}
 
-Để so sánh generator một cách công bằng, benchmark giữ cố định evidence và chỉ thay mô hình sinh. Table~\ref{tab:generator-results} cho thấy \texttt{gpt-oss:120b} là generator nhanh nhất trong các model local lớn, với latency 20.0791 s và rubric coverage cao nhất 0.6008. Tuy nhiên, citation precision và coverage của nó thấp hơn các model khác. \texttt{qwen3:32b} là lựa chọn cân bằng: citation precision 0.9500, citation coverage 1.0000 và latency 46.7412 s. \texttt{llama3.3:70b} và \texttt{deepseek-r1:70b} có citation behavior mạnh nhưng rất chậm, đặc biệt \texttt{deepseek-r1:70b} đạt latency trung bình 591.7254 s.
+Để so sánh các mô hình sinh một cách công bằng, benchmark giữ cố định tập evidence và chỉ thay đổi mô hình sinh. Bảng~\ref{tab:generator-results} cho thấy \texttt{gpt-oss:120b} là mô hình nhanh nhất trong nhóm mô hình cục bộ kích thước lớn, với latency 20.0791~s và rubric coverage cao nhất là 0.6008. Tuy nhiên, citation precision và citation coverage của mô hình này thấp hơn một số lựa chọn khác. \texttt{qwen3:32b} cho thấy sự cân bằng tốt hơn giữa độ chính xác trích dẫn, mức độ bao phủ trích dẫn và độ trễ. Trong khi đó, \texttt{llama3.3:70b} và \texttt{deepseek-r1:70b} cho chất lượng trích dẫn cao nhưng có độ trễ rất lớn, đặc biệt \texttt{deepseek-r1:70b} đạt latency trung bình 591.7254~s.
 
-\begin{table*}[t]
-\caption{So sánh generator mã nguồn mở với fixed evidence}
+\begin{table}[t]
+\caption{So sánh các mô hình sinh mã nguồn mở trên cùng tập evidence}
 \label{tab:generator-results}
 \centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{lrrrrrr}
 \toprule
-\textbf{Generator} & \textbf{Cases} & \textbf{Errors} & \textbf{Cit.P} & \textbf{Cit.Cov.} & \textbf{Req.} & \textbf{Lat.}\\
+\textbf{Model} & \textbf{Cases} & \textbf{Errors} & \textbf{Cit.P} & \textbf{Cit.Cov.} & \textbf{Req.} & \textbf{Lat.}\\
 \midrule
 gpt-oss:120b & 20 & 0 & 0.8349 & 0.7500 & 0.7000 & \textbf{20.0791}\\
 qwen3:32b & 20 & 0 & 0.9500 & \textbf{1.0000} & 0.7167 & 46.7412\\
@@ -404,38 +413,41 @@ llama3.3:70b & 20 & 0 & 0.9500 & \textbf{1.0000} & 0.7167 & 483.8404\\
 deepseek-r1:70b & 20 & 0 & \textbf{1.0000} & 0.9500 & 0.7167 & 591.7254\\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
 \subsection{Retriever, Reranker and Full-stack Diagnostics}
 
-Table~\ref{tab:model-stage} trình bày diagnostics theo tầng model. Qwen3 Embedding 8B hoàn thành retriever benchmark in-memory với Recall@10 = 0.8600, MRR@10 = 0.7939 và nDCG@10 = 0.8090. BAAI/bge-m3 thất bại do yêu cầu runtime của \texttt{torch.load} trong môi trường hiện tại, vì vậy không được xem là kết luận về chất lượng model. Qwen3 Reranker 4B hoàn thành benchmark với Recall@10 = 0.9940 và MRR@10 = 0.9891, nhưng latency reranker vẫn lớn. Full-stack benchmark hiện chỉ là smoke diagnostic: \texttt{stack\_a\_current\_cached} hoàn thành 4 case, còn stack dùng BGE thất bại cùng lỗi runtime.
-
-\begin{table*}[t]
-\caption{Diagnostics theo tầng retriever, reranker và full-stack}
+\begin{table}[t]
+\caption{Kết quả chẩn đoán theo tầng retriever, reranker và toàn hệ thống}
 \label{tab:model-stage}
 \centering
-\small
-\begin{tabular}{p{0.13\textwidth}p{0.22\textwidth}rrp{0.18\textwidth}p{0.26\textwidth}}
+\tiny
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{p{0.12\columnwidth}p{0.19\columnwidth}rrm{0.15\columnwidth}p{0.24\columnwidth}}
 \toprule
-\textbf{Tầng} & \textbf{Model/Stack} & \textbf{Cases} & \textbf{Errors} & \textbf{Metric chính} & \textbf{Diễn giải}\\
+\textbf{Tầng} & \textbf{Model/Stack} & \textbf{N} & \textbf{Err.} & \textbf{Metric} & \textbf{Ghi chú}\\
 \midrule
-Retriever & Qwen3-Embedding-8B & 1000 & 0 & R@10=0.8600, MRR=0.7939 & Hoàn thành\\
-Retriever & BAAI/bge-m3 & 1 & 1 & -- & Lỗi runtime, không xếp hạng chất lượng\\
-Reranker & Qwen3-Reranker-4B & 500 & 0 & R@10=0.9940, MRR=0.9891 & Hoàn thành\\
-Full-stack & stack\_a\_current\_cached & 4 & 0 & Cit.P=1.0000 & Smoke diagnostic\\
-Full-stack & stack\_b\_bge\_m3\_cached & 1 & 1 & -- & Lỗi runtime BGE/Torch\\
+Retriever & Qwen3-Embedding-8B & 1000 & 0 & \shortstack[l]{R@10=0.8600\\MRR=0.7939} & Hoàn thành\\
+Retriever & BAAI/bge-m3 & 1 & 1 & -- & Lỗi thực thi, không xếp hạng chất lượng\\
+Reranker & Qwen3-Reranker-4B & 500 & 0 & \shortstack[l]{R@10=0.9940\\MRR=0.9891} & Hoàn thành\\
+Full-stack & stack\_a\_cached & 4 & 0 & Cit.P=1.00 & Kiểm tra nhanh hoàn thành\\
+Full-stack & stack\_b\_bge & 1 & 1 & -- & Lỗi thực thi BGE/Torch\\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
+
+Bảng~\ref{tab:model-stage} trình bày các kết quả chẩn đoán theo từng tầng của hệ thống. Qwen3 Embedding 8B hoàn thành benchmark truy xuất trong bộ nhớ với Recall@10 = 0.8600, MRR@10 = 0.7939 và nDCG@10 = 0.8090. BAAI/bge-m3 không hoàn thành do ràng buộc thực thi liên quan đến \texttt{torch.load} trong môi trường hiện tại, vì vậy chưa thể xem đây là kết luận về chất lượng của mô hình. Qwen3 Reranker 4B hoàn thành benchmark với Recall@10 = 0.9940 và MRR@10 = 0.9891, nhưng độ trễ của tầng reranking vẫn còn đáng kể. Ở mức toàn hệ thống, benchmark hiện mới dừng ở quy mô kiểm tra nhanh, trong đó \texttt{stack\_a\_cached} hoàn thành 4 trường hợp, còn stack sử dụng BGE không hoàn thành do cùng ràng buộc thực thi.
 
 \subsection{Task-specific Evaluation}
 
-Table~\ref{tab:task-specific} cho thấy các task gap, QA, related-work và trend có citation precision tốt, nhiều nhóm đạt 1.0000. Compare yếu hơn vì có một lỗi server-side từ Ollama và citation precision trung bình 0.5000. Reviewer mới có một case, citation coverage 0.0000, vì vậy cần được mở rộng trong future work.
+Bảng~\ref{tab:task-specific} cho thấy các nhóm tác vụ như gap, QA, related work và trend đều có citation precision tốt, trong đó nhiều nhóm đạt giá trị 1.0000. Tác vụ compare cho kết quả yếu hơn do xuất hiện một lỗi phía máy chủ từ Ollama và citation precision trung bình chỉ đạt 0.5000. Tác vụ reviewer hiện mới chỉ có một trường hợp đánh giá, với citation coverage bằng 0.0000, vì vậy cần được mở rộng trong các nghiên cứu tiếp theo.
 
-\begin{table*}[t]
-\caption{Kết quả task-specific theo nhóm chức năng}
+\begin{table}[t]
+\caption{Kết quả theo tác vụ và nhóm chức năng}
 \label{tab:task-specific}
 \centering
+\setlength{\tabcolsep}{2pt}
 \begin{tabular}{lrrrrrr}
 \toprule
 \textbf{Task} & \textbf{Cases} & \textbf{Errors} & \textbf{Cit.P} & \textbf{Cit.Cov.} & \textbf{Rubric} & \textbf{Lat.}\\
@@ -448,11 +460,11 @@ Reviewer & 1 & 0 & -- & 0.0000 & 0.2500 & 26.3820\\
 Trend & 4 & 0 & 1.0000 & 0.7500 & 0.6875 & 22.8669\\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
 \subsection{System Performance}
 
-Table~\ref{tab:system-performance} trình bày latency hệ thống. Sparse search có p50 0.0121 s và p95 0.0139 s. Hybrid search có p50 0.0833 s và p95 0.0887 s, gần dense search nhưng đạt chất lượng retrieval cao hơn. Điều này củng cố lựa chọn hybrid search làm default production mode. Chat latency mock generator được đưa vào như smoke test hệ thống, không nên so trực tiếp với latency generator Ollama thật.
+Bảng~\ref{tab:system-performance} trình bày độ trễ của các thành phần chính trong hệ thống. Truy xuất sparse đạt p50 = 0.0121~s và p95 = 0.0139~s. Truy xuất hybrid đạt p50 = 0.0833~s và p95 = 0.0887~s, gần với dense retrieval nhưng cho chất lượng truy xuất cao hơn. Kết quả này tiếp tục củng cố việc lựa chọn hybrid retrieval làm cấu hình mặc định cho hệ thống. Phần đo độ trễ của chat với mock generator chỉ nên được xem như một phép kiểm tra kỹ thuật ở mức hệ thống, không nên so sánh trực tiếp với độ trễ của các mô hình sinh thực tế qua Ollama.
 
 \begin{table}[t]
 \caption{System performance và row-count checks}
@@ -476,17 +488,17 @@ Chat & mock gen. & 3 & 3.7085 & 3.8190 & 2.5357\\
 
 \subsection{Overall Discussion}
 
-Kết quả quan trọng nhất là hybrid retrieval nên là cấu hình mặc định của Search và Chat. Nó đạt chất lượng tốt nhất trong benchmark production, đồng thời latency vẫn gần dense retrieval và chấp nhận được cho UI. Reranking chưa nên bật mặc định cho mọi truy vấn trên partial index vì chi phí lớn hơn lợi ích đo được; thay vào đó, reranking có thể bật chọn lọc cho query khó như compare, research gap hoặc reviewer mode.
+Một kết quả đáng chú ý là hybrid retrieval nổi lên như cấu hình phù hợp nhất cho các chức năng truy xuất và hỏi--đáp của hệ thống. Cấu hình này đạt chất lượng cao nhất trong benchmark trên chỉ mục hiện tại, trong khi độ trễ vẫn gần với dense retrieval và ở mức chấp nhận được cho tương tác người dùng. Reranking chưa nên bật mặc định cho mọi truy vấn trên chỉ mục hiện tại vì chi phí lớn hơn lợi ích đo được; thay vào đó, reranking có thể được kích hoạt chọn lọc cho các truy vấn khó như so sánh phương pháp, tìm khoảng trống nghiên cứu hoặc đánh giá theo góc nhìn phản biện.
 
-Ở tầng generator, không có một model thắng tuyệt đối. \texttt{gpt-oss:120b} nhanh và phù hợp demo tương tác hơn. \texttt{qwen3:32b} cân bằng hơn về citation coverage và latency. Hai model 70B cho citation behavior tốt nhưng quá chậm trong môi trường hiện tại. Vì vậy, tab Models có ý nghĩa thực tế: nó giúp người dùng nhìn thấy trade-off giữa tốc độ, groundedness, citation coverage và rubric coverage.
+Ở tầng generator, không có một mô hình nào vượt trội tuyệt đối trên mọi tiêu chí. \texttt{gpt-oss:120b} có lợi thế rõ về tốc độ và phù hợp hơn cho các tình huống tương tác. \texttt{qwen3:32b} cho sự cân bằng tốt hơn giữa citation coverage và độ trễ. Hai mô hình 70B thể hiện chất lượng trích dẫn tốt nhưng quá chậm trong môi trường hiện tại. Vì vậy, chức năng so sánh mô hình có ý nghĩa thực tế, vì nó giúp người dùng quan sát rõ hơn các đánh đổi giữa tốc độ, groundedness, citation coverage và rubric coverage.
 
 \section{Conclusion and Future Work}
 
-Báo cáo đã trình bày \systemname, một hệ thống Hybrid RAG và analytics cho khai phá dữ liệu arXiv. Hệ thống kết hợp SQLite analytics, Milvus hybrid retrieval, Qwen3 embedding/reranking, local LLM generation và UI 7 tab để hỗ trợ Search, Chat, Compare, Models, Trends, Graph và Reviewer. Thực nghiệm trên final benchmark cho thấy hybrid retrieval là lựa chọn production tốt nhất với Recall@10 = 0.9960, MRR@10 = 0.9901 và latency trung bình 0.0775 s. Chat/RAG đạt citation precision 0.9453 với \texttt{gpt-oss:120b}, trong khi benchmark generator cho thấy \texttt{qwen3:32b} là lựa chọn cân bằng về citation coverage và latency. Các kết quả này cho thấy hệ thống đã đáp ứng đầy đủ mục tiêu bài tập lớn: thu thập và phân tích dữ liệu, xây dựng mô hình/hệ thống học máy, triển khai demo và đánh giá định lượng nhiều hướng tiếp cận.
+Báo cáo đã trình bày \systemname, một hệ thống Hybrid RAG kết hợp phân tích dữ liệu để hỗ trợ khai phá tài liệu arXiv. Hệ thống tích hợp cơ sở dữ liệu SQLite cho phân tích thống kê, Milvus cho truy xuất hybrid, Qwen3 cho embedding và reranking, cùng tầng mô hình sinh cục bộ và giao diện phục vụ tương tác người dùng. Thực nghiệm trên benchmark chính cho thấy hybrid retrieval là cấu hình phù hợp nhất, với Recall@10 = 0.9960, MRR@10 = 0.9901 và latency trung bình 0.0775~s. Hệ thống hỏi--đáp dựa trên RAG đạt citation precision 0.9453 với \texttt{gpt-oss:120b}, trong khi benchmark generator cho thấy \texttt{qwen3:32b} là lựa chọn cân bằng hơn về citation coverage và độ trễ. Các kết quả này cho thấy hệ thống đã đáp ứng đầy đủ các mục tiêu chính của đồ án, bao gồm thu thập và phân tích dữ liệu, xây dựng hệ thống học máy, triển khai nguyên mẫu và đánh giá định lượng theo nhiều hướng tiếp cận.
 
-Tuy vậy, kết quả hiện tại vẫn cần được đọc trong bối cảnh Milvus production index mới bao phủ 39,336/557,134 paper, ground-truth retrieval còn mang tính weak label từ title-based known-item cases, tập prompt task-specific còn nhỏ, và một số model-stage benchmark chưa hoàn thành do ràng buộc runtime. Hướng phát triển tiếp theo là build full Milvus index, bổ sung human relevance judgments, mở rộng benchmark bằng các nguồn như S2ORC~\cite{lo2020s2orc}, OpenAlex~\cite{priem2022openalex}, BEIR~\cite{thakur2021beir} hoặc SciDocs~\cite{cohan2020specter}, đồng thời cải thiện citation/reference graph, citation enforcement và tối ưu serving để giảm latency của generator lớn.
+Tuy vậy, các kết quả hiện tại vẫn cần được diễn giải trong bối cảnh chỉ mục Milvus mới bao phủ 39,336 trên tổng số 557,134 bài báo, ground-truth retrieval còn mang tính weak label từ các truy vấn known-item dựa trên tiêu đề, tập prompt theo tác vụ còn nhỏ, và một số benchmark theo tầng mô hình chưa hoàn thành do ràng buộc thực thi. Hướng phát triển tiếp theo là mở rộng chỉ mục Milvus lên toàn bộ corpus, bổ sung đánh giá relevance bởi con người, mở rộng benchmark bằng các nguồn như S2ORC~\cite{lo2020s2orc}, OpenAlex~\cite{priem2022openalex}, BEIR~\cite{thakur2021beir} hoặc SciDocs~\cite{cohan2020specter}, đồng thời cải thiện đồ thị trích dẫn/tham chiếu, cơ chế ép buộc citation và tầng phục vụ mô hình để giảm độ trễ của các generator lớn.
 
-\section*{Reproducibility Notes}
+\section*{Code Availability}
 
 Toàn bộ mã nguồn của dự án có thể truy cập tại \url{https://github.com/DrUnicornIT/bot}.
 
