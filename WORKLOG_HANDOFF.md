@@ -281,3 +281,324 @@
   - cac `overfull` chinh da duoc loai bo;
   - so trang hien tai van la `8`;
   - warning con lai chu yeu la `underfull` nho trong mot vai o bang hep va cac URL dai trong references, khong con la van de lon ve bo cuc.
+
+## Ghi Chu Cho Leader Duyet
+
+### Nhan xet hien tai
+
+- Bao cao hien da sach hon ve van phong va thuat ngu, nhung van co the tao cam giac `hoi mong` o 3 diem:
+  - phan ket qua co so lieu nhung dien giai chua sau;
+  - phan phuong phap mo ta he thong kha ro nhung ly do thiet ke va trade-off chua du day;
+  - phan gioi han va huong phat trien co y chinh nhung chua tach ro tung nhom van de.
+
+### Huong lam day uu tien
+
+1. Day them `Experimental Results and Discussion`
+- Day la cho tang chat luong bao cao hieu qua nhat.
+- Moi bang chinh nen co them 2--4 cau tra loi ro:
+  - ket qua nao noi bat nhat;
+  - vi sao ket qua do xuat hien;
+  - ket qua do noi gi ve he thong;
+  - trong tinh huong nao thi ket qua do chua du manh.
+
+2. Bo sung ly do thiet ke trong `Materials and Methods`
+- Co the them ngan gon:
+  - vi sao tach `SQLite` va `Milvus`;
+  - vi sao dung `hybrid retrieval` thay vi dense-only hoac sparse-only;
+  - vi sao tach benchmark thanh retrieval, generator va full-stack.
+
+3. Mo rong `Conclusion and Future Work`
+- Nen tach ro hon cac nhom gioi han:
+  - gioi han du lieu;
+  - gioi han benchmark/danh gia;
+  - gioi han ha tang;
+  - gioi han kha nang khai quat hoa.
+
+### Co the lam day `Related Work` khong?
+
+- Co, nhung nen lam day theo chieu sau lap luan, khong nen chi them them cite.
+- `Related Work` hien tai da co khung hop ly, nhung van co the day them theo 3 huong sau:
+
+1. Lam ro hon su khac nhau giua cac nhom cong trinh
+- Moi cum co the ket bang 1--2 cau tong ket:
+  - nhom retrieval giai quyet tot bai toan tim tai lieu;
+  - nhom RAG giai quyet tot bai toan sinh cau tra loi co dan chung;
+  - nhom graph/research-support giai quyet tot bai toan kham pha boi canh nghien cuu.
+
+2. Tang do ro cua `research gap`
+- Sau moi cum nen chi ra gioi han cu the hon, thay vi chi noi chung chung.
+- Vi du:
+  - retrieval manh nhung chua tro thanh he thong ho tro nghien cuu tich hop;
+  - RAG manh cho hoi-dap nhung chua bao phu du nhu cau analytics va so sanh phuong phap;
+  - graph/research-support systems huu ich nhung thuong thien ve mot lat cat rieng.
+
+3. Them 1 doan chot cuoi section
+- Doan nay nen noi ro:
+  - he thong trong bao cao nam o giao diem cua retrieval, RAG, analytics va research-support;
+  - khoang trong ma bao cao muon thu hep la su thieu vang mot he thong tich hop cac nhu cau nay tren cung mot corpus arXiv cuc bo va co danh gia dinh luong.
+
+### Luu y khi lam day `Related Work`
+
+- Khong nen bien section nay thanh danh sach cong cu.
+- Uu tien mo rong phan so sanh va research gap hon la them nhieu ten he thong moi.
+- Neu can them do day, nen them 1--2 doan phan tich sau moi cum, thay vi them 4--5 citation moi ma khong co lap luan.
+
+### Kien nghi neu can uu tien mot cho de nang chat bao cao
+
+- Uu tien 1: `Experimental Results and Discussion`
+- Uu tien 2: `Related Work`
+- Uu tien 3: `Conclusion and Future Work`
+
+- Neu leader muon bao cao day hon ma van giu chat luong, cach an toan nhat la mo rong Section VII truoc, sau do bo sung lap luan trong `Related Work`.
+
+## Bo Sung Theo Y Kien Leader (2026-05-13)
+
+### 1. Them dinh nghia RAG
+
+- Co, nen them.
+- Vi tri hop ly nhat:
+  1. `Introduction`
+  - Sau cau noi ve han che cua LLM neu chi dua vao tri thuc tham so.
+  - Nen viet 1--2 cau ro nghia:
+    - RAG la cach ket hop truy xuat tai lieu lien quan truoc khi sinh cau tra loi;
+    - muc tieu la tang tinh co can cu va giam tra loi khong dung tai lieu.
+  2. `Related Work` / `Retrieval-Augmented Generation`
+  - Co the mo rong them 1 cau de tach bach:
+    - RAG khong chi la `retrieval + generation`, ma la mot co che rang buoc cau tra loi vao tap evidence duoc truy xuat.
+
+- Khong nen lam dai qua:
+  - tong cong 2--3 cau la du;
+  - tranh lap lai dung nghia giong nhau o nhieu cho.
+
+### 2. Giai thich tai sao lai dung Milvus
+
+- Co, nen them, vi day la quyet dinh thiet ke quan trong nhung hien tai ly do chua du ro.
+- Vi tri hop ly nhat:
+  1. `Data Storage and Indexing`
+  - Them 2--3 cau sau doan mo ta hai lop `SQLite` va `Milvus`.
+  - Y can lam ro:
+    - Milvus phu hop vi can luu va truy van dense vector va sparse representation trong cung mot he thong;
+    - ho tro hybrid retrieval, ket hop BM25 va vector search;
+    - phu hop voi bai toan truy xuat tren corpus lon hon la chi dung mot CSDL quan he.
+  2. `System Design and Implementation`
+  - Co the them 1 cau nhac lai vai tro cua Milvus trong luong online:
+    - day la lop chi muc phuc vu truy xuat nhanh cho retrieval va RAG.
+
+- Khong nen viet theo kieu quang ba cong nghe.
+- Nen giai thich bang ngon ngu quyet dinh he thong:
+  - `chon Milvus de ho tro retrieval lai va mo rong chi muc vector`, khong phai `vi Milvus pho bien`.
+
+### 3. Ra tung section xem co the lam day o dau ma khong lan man
+
+#### Introduction
+- Co the day them rat nhe.
+- Nen them:
+  - 1 cau dinh nghia RAG ro hon;
+  - 1 cau noi vi sao bai toan nay khong chi la hoi-dap.
+- Khong nen them nhieu vi mo bai da kha day.
+
+#### Problem Formulation
+- Chi nen day rat it.
+- Co the them:
+  - 1 cau chot ly do can nhieu kieu dau ra khac nhau.
+- Khong nen them qua nhieu ky hieu hay formalism moi.
+
+#### Related Work
+- Co the day them tot, nhung theo chieu sau lap luan.
+- Nen them:
+  - 1--2 cau tong ket sau moi subsection;
+  - 1 doan chot cuoi section noi ro hon he thong cua bao cao nam o giao diem nao giua retrieval, RAG, analytics va research-support.
+- Day la cho co the lam day ma van hoc thuat, neu lam dung cach.
+
+#### Materials and Methods
+- Day la cho nen day them muc vua.
+- Nen them:
+  - ly do chon `Milvus`;
+  - ly do tach `SQLite` va `Milvus`;
+  - ly do dung `hybrid retrieval`;
+  - ly do tach benchmark retrieval / generator / full-stack.
+- Moi y chi can 1--2 cau.
+
+#### System Design and Implementation
+- Co the day them nhe.
+- Nen them:
+  - 1 cau noi vai tro cua luong ngoai tuyen va truc tuyen;
+  - 1 cau nhac ly do luc nao du lieu di vao `SQLite`, luc nao di vao `Milvus`.
+- Khong nen bien section nay thanh README cong nghe.
+
+#### Evaluation Methodology
+- Con day du, nhung co the day them co chu dich.
+- Nen them:
+  - 1 cau giai thich vi sao dung `weak label` cho retrieval benchmark;
+  - 1 cau noi han che cua benchmark hien tai.
+- Khong nen them qua nhieu cong thuc hay metric moi.
+
+#### Experimental Results and Discussion
+- Day la cho nen uu tien lam day nhat.
+- Moi subsection nen co them 2--4 cau phan tich:
+  - ket qua nao noi bat;
+  - vi sao;
+  - ham y gi cho he thong;
+  - khi nao thi ket qua nay chua du thuyet phuc.
+- Neu can tang do day nhanh ma van chat luong, uu tien section nay dau tien.
+
+#### Conclusion and Future Work
+- Co the day them muc vua.
+- Nen tach ro hon:
+  - gioi han du lieu;
+  - gioi han benchmark;
+  - gioi han ha tang;
+  - huong mo rong corpus va danh gia con nguoi.
+- Phan nay day them se tao cam giac bao cao chin hon.
+
+### 4. Thu tu uu tien neu can lam tiep
+
+1. Them dinh nghia RAG trong `Introduction`
+2. Them ly do chon `Milvus` trong `Data Storage and Indexing`
+3. Day them `Experimental Results and Discussion`
+4. Day them `Related Work`
+5. Mo rong `Conclusion and Future Work`
+
+### 5. Nguyen tac chung
+
+- Moi cho chi them 1--3 cau co gia tri, khong chen doan dai neu y do da ro.
+- Uu tien:
+  - ly do thiet ke;
+  - y nghia cua ket qua;
+  - gioi han va khoang trong.
+- Khong uu tien:
+  - liet ke them ten cong cu;
+  - lap lai dinh nghia da co;
+  - nhac lai chi tiet implementation noi bo.
+
+## Leader Review - Noi Co The Lam Day Them (ban rut gon, khong lan man)
+
+### Muc tieu chung
+
+- Bao cao hien tai da kha sach ve cau chu, nhung van co the "day" hon o 3 huong co gia tri:
+  1. lam ro hon cac quyet dinh thiet ke;
+  2. phan tich y nghia ket qua sau moi bang chinh;
+  3. tach ro gioi han va huong mo rong.
+- Nguyen tac van giu:
+  - moi cho chi them 1--3 cau co gia tri;
+  - uu tien ly do, ham y, gioi han;
+  - khong mo rong theo kieu liet ke cong nghe hay lap y.
+
+### Section I - Introduction
+
+- Nen bo sung:
+  - 1 cau dinh nghia RAG ro hon sau cau noi ve han che cua LLM.
+  - 1 cau noi ro hon vi sao bai toan nghien cuu khong the giam ve mot he hoi-dap thuong.
+- Ly do:
+  - leader muon "them RAG dinh nghia";
+  - day la cho doc gia can duoc dat nen khoi niem ngay tu dau.
+- Muc day hop ly:
+  - them tong cong 2 cau la du.
+
+### Section II - Problem Formulation
+
+- Co the day them rat nhe.
+- Nen bo sung:
+  - 1 cau ket noi giua cac kieu dau ra va nhu cau thuc te cua nguoi lam nghien cuu.
+- Ly do:
+  - hien section nay da ro ve mat hinh thuc, nhung van co the them 1 cau giai thich tai sao can nhieu loai output.
+- Muc day hop ly:
+  - 1 cau, khong them ky hieu moi.
+
+### Section III - Related Work
+
+- Co the day them kha tot ma van gon.
+- Nen bo sung:
+  - 1 cau tong ket cuoi subsection `Retrieval Methods for Scientific Documents` de noi ro retrieval giai quyet tot "tim tai lieu", nhung chua giai quyet "tong hop va phan tich".
+  - 1 cau tong ket cuoi subsection `Retrieval-Augmented Generation` de noi ro RAG giai quyet grounding nhung chua bao phu analytics va research support.
+  - 1 doan chot cuoi section noi ro hon he thong cua bao cao nam o giao diem nao giua retrieval, RAG, analytics va research-support systems.
+- Ly do:
+  - day them theo chieu sau lap luan, khong phai theo so luong paper.
+- Muc day hop ly:
+  - moi subsection them 1 cau;
+  - doan ket section them 2--3 cau.
+
+### Section IV - Materials and Methods
+
+- Day la cho nen day them vua phai.
+- Nen bo sung:
+  - `Data Storage and Indexing`
+    - them 2 cau tra loi ro "tai sao la Milvus" thay vi mot vector store khac hay chi dung SQLite.
+    - huong dien dat nen la:
+      - Milvus phu hop vi ho tro dong thoi dense vector va sparse representation;
+      - ho tro hybrid retrieval va mo rong chi muc truy xuat tot hon CSDL quan he cho bai toan nay.
+  - `Retrieval and Query Processing`
+    - them 1 cau ly do tai sao hybrid retrieval la lua chon hop ly cho corpus khoa hoc.
+  - `Benchmark Configuration`
+    - them 1 cau giai thich tai sao retrieval benchmark, generator benchmark va full-stack diagnostics duoc tach rieng.
+- Ly do:
+  - day la cac quyet dinh thiet ke can duoc bao ve ro hon.
+- Muc day hop ly:
+  - tong cong moi subsection them 1--2 cau.
+
+### Section V - System Design and Implementation
+
+- Co the day them nhe.
+- Nen bo sung:
+  - 1 cau sau doan mo dau section de noi ro ly do can tach luong ngoai tuyen va truc tuyen.
+  - 1 cau duoi Figure 1 hoac sau bang thanh phan de nhan manh Milvus la lop chi muc phuc vu truy xuat nhanh cho retrieval va RAG, con SQLite phuc vu thong ke va tra cuu.
+- Ly do:
+  - giup section nay bieu lo ro hon kien truc va vai tro tung lop, thay vi chi mo ta thanh phan.
+- Muc day hop ly:
+  - them 2 cau tong cong.
+
+### Section VI - Evaluation Methodology
+
+- Chi nen day co chu dich.
+- Nen bo sung:
+  - 1 cau sau `Retrieval Metrics` de giai thich retrieval benchmark hien tai la known-item benchmark va no phu hop de do kha nang tra cuu co muc tieu.
+  - 1 cau sau `Answer and Citation Metrics` de noi ro nhung metric nay khong thay the danh gia chuyen gia toan dien.
+- Ly do:
+  - giup nguoi doc hieu benchmark do duoc gi va khong do duoc gi.
+- Muc day hop ly:
+  - tong cong 2 cau.
+
+### Section VII - Experimental Results and Discussion
+
+- Day la cho nen uu tien lam day nhat.
+- Nen bo sung:
+  - `Retrieval Performance`
+    - them 1--2 cau giai thich vi sao hybrid retrieval vuot sparse va dense tren chi muc hien tai.
+  - `RAG Answer Quality`
+    - them 1--2 cau ve ham y cua citation coverage 0.8000 va required-term coverage 0.6417.
+  - `Analytics and Graph Results`
+    - them 1 cau noi ro vi sao cac chi so nay huu ich cho khai pha literature, du chua du de ket luan chat luong hoc thuat cua do thi.
+  - `Open-source Generator Comparison`
+    - them 1 cau ket noi ket qua model voi trade-off su dung thuc te.
+  - `Retriever, Reranker and Full-stack Diagnostics`
+    - them 1 cau tach bach ro "loi thuc thi" va "chat luong mo hinh".
+  - `Task-specific Evaluation`
+    - them 1 cau neu ro cac task nao hien da on, task nao con mong ve du lieu.
+  - `Overall Discussion`
+    - co the them 1 cau tong ket gia tri thuc te cua he thong trong bai toan nghien cuu.
+- Ly do:
+  - day la section tang "do day" hieu qua nhat ma khong can them bang hay cite.
+- Muc day hop ly:
+  - moi subsection them 1--2 cau phan tich.
+
+### Section VIII - Conclusion and Future Work
+
+- Co the day them muc vua.
+- Nen bo sung:
+  - tach gioi han thanh 3 nhom ro hon:
+    - gioi han du lieu/index;
+    - gioi han benchmark/ground truth;
+    - gioi han ha tang va thuc thi.
+  - them 1 cau noi ro huong phat trien uu tien nhat la mo rong Milvus index va bo sung human relevance assessment.
+- Ly do:
+  - phan nay day them se tao cam giac bao cao "chin" hon ma van rat gon.
+- Muc day hop ly:
+  - them 3--4 cau, khong can them subsection moi.
+
+### Thu tu nen lam neu leader duyet
+
+1. Bo sung dinh nghia RAG o `Introduction`.
+2. Bo sung ly do chon Milvus o `Data Storage and Indexing`.
+3. Day them `Experimental Results and Discussion`.
+4. Day them `Related Work`.
+5. Mo rong nhe `Conclusion and Future Work`.
