@@ -69,7 +69,7 @@ Báo cáo này trình bày \systemname, một hệ thống Hybrid RAG được t
     \item Báo cáo thực nghiệm trên dữ liệu arXiv giai đoạn 2021--2026, với 557,134 bài báo trong cơ sở dữ liệu phục vụ phân tích thống kê và 39,336 bài báo trong chỉ mục truy xuất dùng cho benchmark retrieval và RAG.
 \end{itemize}
 
-Phần còn lại của báo cáo được tổ chức như sau. Section~II phát biểu bài toán. Section~III trình bày nghiên cứu liên quan. Section~IV mô tả dữ liệu và phương pháp. Section~V mô tả kiến trúc hệ thống. Section~VI trình bày thiết kế đánh giá. Section~VII báo cáo kết quả thực nghiệm và thảo luận. Section~VIII nêu giới hạn và hướng phát triển. Cuối cùng, Section~IX trình bày kết luận.
+Phần còn lại của báo cáo được tổ chức như sau. Section~II phát biểu bài toán. Section~III trình bày nghiên cứu liên quan. Section~IV mô tả dữ liệu và phương pháp. Section~V mô tả kiến trúc hệ thống. Section~VI trình bày thiết kế đánh giá. Section~VII báo cáo kết quả thực nghiệm và thảo luận. Cuối cùng, Section~VIII trình bày kết luận, giới hạn và hướng phát triển.
 
 \section{Problem Formulation}
 
@@ -468,7 +468,7 @@ Trend & 4 & 0 & 1.0000 & 0.7500 & 0.6875 & 22.8669\\
 Bảng~\ref{tab:system-performance} trình bày độ trễ của các thành phần chính trong hệ thống. Truy xuất sparse đạt p50 = 0.0121~s và p95 = 0.0139~s. Truy xuất hybrid đạt p50 = 0.0833~s và p95 = 0.0887~s, gần với dense retrieval nhưng cho chất lượng truy xuất cao hơn. Kết quả này tiếp tục củng cố việc lựa chọn hybrid retrieval làm cấu hình mặc định cho hệ thống. Phần đo độ trễ của chat với mock generator chỉ nên được xem như một phép kiểm tra kỹ thuật ở mức hệ thống, không nên so sánh trực tiếp với độ trễ của các mô hình sinh thực tế qua Ollama.
 
 \begin{table}[t]
-\caption{System performance và row-count checks}
+\caption{Hiệu năng hệ thống và kiểm tra số lượng bản ghi}
 \label{tab:system-performance}
 \centering
 \footnotesize
